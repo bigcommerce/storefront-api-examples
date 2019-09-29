@@ -10,16 +10,18 @@
     <body>
       <div class="container-fluid">
         <h1 class="display-4" id="main-title">Bootstrap + Vanilla JS Storefront API Example</h1>
+
         <!-- Getting started content, will be hidden upon success of an API request -->
         <div id="getting-started">
           <p class="lead">This example shows how a static HTML site can be used to render dynamic product information using BigCommerce's GraphQL Storefront API. Product IDs and the GraphQL authentication details are accepted as URL parameters. View the source of this example <a href="https://github.com/bigcommerce/storefront-api-examples/blob/master/html-bootstrap-vanillajs/index.html">here.</a></p>
+
           <p>Parameters should be populated like this:</p>
-          <code id="page-url"></code><code>?store_hash=<var>&lt;Your Store Hash&gt;</var>&product_ids=<var>&lt;(Optional) CSV list of product IDs to render&gt;</var>&token=<var>&lt;Your GraphQL Token&gt;</var></code>
+
+          <p><code id="page-url"></code><code>?store_hash=<var>&lt;Your Store Hash&gt;</var>&product_ids=<var>&lt;(Optional) CSV list of product IDs to render&gt;</var>&token=<var>&lt;Your GraphQL Token&gt;</var></code></p>
+
           <p>Be sure to <a href="https://developer.bigcommerce.com/api-reference/storefront/storefront-token-api/storefront-api-auth/createtoken" target="_blank">create a token</a> valid for this page's origin: <code id="page-origin"></code><p>
 
           <p>To just see this page working with data from a sample store, <a href="?store_hash=jcngnmnbfy&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJlYXQiOjIwMDAwMDAwMDAsInN1Yl90eXBlIjoyLCJ0b2tlbl90eXBlIjoxLCJjb3JzIjpbImh0dHBzOi8vYmlnY29tbWVyY2UuZ2l0aHViLmlvIl0sImNpZCI6MSwiaWF0IjoxNTY5NzkxNjk1LCJzdWIiOiI3bGp3YzR3d2J6d284NG9rZ2N6cnBzZzN4bGFicDNkIiwic2lkIjo5OTkzMzE3ODQsImlzcyI6IkJDIn0.oZ8kz7thdpDpLDguig-mP3y_ZBudv-kYq-Xufv1g9giX8XuaVj419zpYvRBS4yGP1Vq7jOa3SeaDWgevlNgegg">click here.</a></p>
-
-
         </div>
 
         <!-- Loading message or spinner -->
@@ -39,18 +41,13 @@
         // Inject the current page origin into the getting started text
         document.getElementById("page-origin").innerHTML = pageUrl.origin;
 
-        //
-        // Utility functions for rendering
-        //
+        /*
+            Utility functions for rendering
+        */
 
         // Based on the browser locale, provide a localized price
         function formatLocalizedPrice (price) {
             return new Intl.NumberFormat(navigator.language, {style: 'currency', currency: price.currencyCode}).format(price.value);
-        }
-
-        // Render the price component from the supplied prices
-        function renderPrice(prices) {
-            return `<span class="card-text text-muted">(${prices.retailPrice ? `<del><span class="font-italic">${formatLocalizedPrice(prices.price)}</span></del>` : ''} ${formatLocalizedPrice(prices.price)})</span>`
         }
 
         // Create a srcset string for responsive images
@@ -65,9 +62,9 @@
            return doc.body.textContent || "";
         }
 
-        //
-        // Page rendering logic
-        //
+        /*
+            Page rendering logic
+        */
         function renderPage(data) {
             // Set up the add-to-cart-url format
             const addToCartURLFormat = `${data.site.settings.url.vanityUrl}/cart.php?action=add&product_id=`
@@ -75,9 +72,6 @@
             document.getElementById('product-listing').innerHTML = `${data.site.products.edges.map(node => renderProduct(node.product, addToCartURLFormat)).reduce((productsHtml, productHtml) => productsHtml += productHtml)}`;
         }
 
-        //
-        // Rendering logic for each product
-        //
         function renderProduct(product, addToCartURLFormat) {
             // Render the product into a bootstrap "card"
             return `
@@ -93,6 +87,15 @@
               </div>`
         }
 
+        function renderPrice(prices) {
+            // Render the price component from the supplied prices
+            return `<span class="card-text text-muted">(${prices.retailPrice ? `<del><span class="font-italic">${formatLocalizedPrice(prices.price)}</span></del>` : ''} ${formatLocalizedPrice(prices.price)})</span>`
+        }
+
+
+        /*
+            API fetching
+        */
         function getProductAndSiteInfo(params) {
             // Use the store's canonical URL which should always resolve
             const graphQLUrl = `https://store-${params.store_hash}.mybigcommerce.com/graphql`;
