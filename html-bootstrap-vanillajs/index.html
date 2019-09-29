@@ -1,15 +1,16 @@
 <!doctype html>
 <html>
     <head>
+        <!-- Standard Bootstrap head content and CSS -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <title>Static Site GraphQL Storefront API Example</title>
-
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     </head>
     <body>
       <div class="container-fluid">
         <h1 class="display-4" id="main-title">Bootstrap + Vanilla JS Storefront API Example</h1>
+        <!-- Getting started content, will be hidden upon success of an API request -->
         <div id="getting-started">
           <p class="lead">This example shows how a static HTML site can be used to render dynamic product information using BigCommerce's GraphQL Storefront API. Product IDs and the GraphQL authentication details are accepted as URL parameters. View the source of this example <a href="https://github.com/bigcommerce/storefront-api-examples/blob/master/html-bootstrap-vanillajs/index.html">here.</a></p>
           <p>Parameters should be populated like this:</p>
@@ -33,23 +34,30 @@
         const pageUrl = new URL(window.location);
         const searchParams = pageUrl.searchParams;
 
+        // Inject the current page origin into the getting started text
         document.getElementById("page-origin").innerHTML = pageUrl.origin;
 
         //
         // Utility functions for rendering
         //
+
+        // Based on the browser locale, provide a localized price
         function formatLocalizedPrice (price) {
             return new Intl.NumberFormat(navigator.language, {style: 'currency', currency: price.currencyCode}).format(price.value);
         }
 
+        // Render the price component from the supplied prices
         function renderPrice(prices) {
             return `<span class="card-text text-muted">(${prices.retailPrice ? `<del><span class="font-italic">${formatLocalizedPrice(prices.price)}</span></del>` : ''} ${formatLocalizedPrice(prices.price)})</span>`
         }
 
+        // Create a srcset string for responsive images
         function renderSrcset(image) {
             return `${image.img100px} 100w, ${image.img250px} 250w, ${image.img500px} 500w, ${image.img1000px} 1000w, ${image.img1500px} 1500w`
         }
 
+
+        // Function to strip HTML from product descriptions, leaving just the text
         function stripHtml(html){
            var doc = new DOMParser().parseFromString(html, 'text/html');
            return doc.body.textContent || "";
@@ -84,13 +92,17 @@
         }
 
         function getProductAndSiteInfo(params) {
+            // Use the store's canonical URL which should always resolve
             const graphQLUrl = `https://store-${params.store_hash}.mybigcommerce.com/graphql`;
+
+            // Fetch data from the GraphQL Storefront API
+            // If specific product IDs were supplied, fetch them, else just get the first few products
 
             return fetch(graphQLUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json',
                        'Authorization': `Bearer ${params.token}`},
-              body: JSON.stringify({ query: `query BuyButton1dot4 {
+              body: JSON.stringify({ query: `query StaticSiteExample {
                   site {
                     products${params.product_ids ? `(entityIds:[${params.product_ids}])` : ''} {
                       edges {
@@ -153,24 +165,32 @@
 
         // Check for required parameters, throw an error if they're not found
         if (!(params.store_hash && params.token)) {
-
             document.getElementById('loading-message').innerHTML = `Error: At least one of the required URL parameters (SKU, Token) was not supplied or was invalid.`;
             document.getElementById('loading-message').style.display = 'block';
             throw new Error('At least one of the required URL parameters (SKU, Product IDs, Token) was not supplied or was invalid');
         } else {
+            // It seems like the required parameters were supplied, try to load the product data from the Storefront API
             document.getElementById('loading-message').style.display = 'block';
             getProductAndSiteInfo(params).then(data => {
+                // With our data loaded, try to render the product listing
                 renderPage(data);
+
+                // Set the header to the name of the store
                 document.getElementById('main-title').innerHTML = `${data.site.settings.storeName}`
+
+                // Remove the getting started content and the loading messgae
                 document.getElementById('getting-started').style.display = 'none';
                 document.getElementById('loading-message').style.display = 'none';
             }).catch(e => {
+              // Some error was encountered, most likely a problem with getting an API response - possibly bad credentials, if this is an HTTP 401
               console.log('Encountered an error:');
               console.error(e);
               document.getElementById('loading-message').innerHTML = `Problem loading data from the API: ${e}. Check the browser console for more details.`
             });
         }
         </script>
+
+        <!-- Standard Bootstrap scripts -->
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
