@@ -77,7 +77,7 @@
             // Render the product into a bootstrap "card"
             return `
                 <div class="card" style="min-width: 25%;">
-                ${product.defaultImage ? `<img class="card-img-top" style="min-height: 25%; object-fit: contain;" src="${product.defaultImage.img1000px}" srcset="${renderSrcset(product.defaultImage)}">` : ''
+                ${product.defaultImage ? `<img loading="lazy" class="card-img-top" style="min-height: 25%; object-fit: contain;" src="${product.defaultImage.img1000px}" srcset="${renderSrcset(product.defaultImage)}">` : ''
                  }
                 <div class="card-body">
                   <h5 class="card-title">${product.name} ${renderPrice(product.prices)}</h5>
