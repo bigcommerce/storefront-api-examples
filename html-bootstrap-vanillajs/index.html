@@ -5,7 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <title>Static Site GraphQL Storefront API Example</title>
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     </head>
     <body>
       <div class="container-fluid">
@@ -19,10 +19,12 @@
 
           <p>To just see this page working with data from a sample store, <a href="?store_hash=jcngnmnbfy&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJlYXQiOjIwMDAwMDAwMDAsInN1Yl90eXBlIjoyLCJ0b2tlbl90eXBlIjoxLCJjb3JzIjpbImh0dHBzOi8vYmlnY29tbWVyY2UuZ2l0aHViLmlvIl0sImNpZCI6MSwiaWF0IjoxNTY5NzkxNjk1LCJzdWIiOiI3bGp3YzR3d2J6d284NG9rZ2N6cnBzZzN4bGFicDNkIiwic2lkIjo5OTkzMzE3ODQsImlzcyI6IkJDIn0.oZ8kz7thdpDpLDguig-mP3y_ZBudv-kYq-Xufv1g9giX8XuaVj419zpYvRBS4yGP1Vq7jOa3SeaDWgevlNgegg">click here.</a></p>
 
-          <div class="d-flex align-items-center" id="loading-message" style="display: none;">
-            <strong>Loading...</strong>
-            <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
-          </div>
+
+        </div>
+
+        <!-- Loading message or spinner -->
+        <div class="d-none spinner-border text-primary m-5" id="loading-message" role="status">
+          <span class="sr-only">Loading...</span>
         </div>
 
         <!-- Main product listing element, to be filled out with product data from the API -->
@@ -163,12 +165,15 @@
             }
         });
 
+        const loadingMessageElement = document.getElementById('loading-message');
+
         // Check for required parameters, throw an error if they're not found
         if (!(params.store_hash && params.token)) {
             throw new Error('At least one of the required URL parameters (Store Hash, Token) was not supplied or was invalid');
         } else {
             // It seems like the required parameters were supplied, try to load the product data from the Storefront API
-            document.getElementById('loading-message').style.display = 'block';
+            // Display the loading message
+            loadingMessageElement.classList.replace('d-none', 'd-flex');
             getProductAndSiteInfo(params).then(data => {
                 // With our data loaded, try to render the product listing
                 renderPage(data);
@@ -176,9 +181,9 @@
                 // Set the header to the name of the store
                 document.getElementById('main-title').innerHTML = `${data.site.settings.storeName}`
 
-                // Remove the getting started content and the loading messgae
-                document.getElementById('getting-started').style.display = 'none';
-                document.getElementById('loading-message').style.display = 'none';
+                // Hide the loading message and the getting started context
+                loadingMessageElement.classList.replace('d-flex', 'd-none');
+                document.getElementById('getting-started').classList.add('d-none');
             }).catch(e => {
               // Some error was encountered, most likely a problem with getting an API response - possibly bad credentials, if this is an HTTP 401
               console.log('Encountered an error:');
@@ -189,8 +194,8 @@
         </script>
 
         <!-- Standard Bootstrap scripts -->
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     </body>
 </html>
