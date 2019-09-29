@@ -165,8 +165,6 @@
 
         // Check for required parameters, throw an error if they're not found
         if (!(params.store_hash && params.token)) {
-            document.getElementById('loading-message').innerHTML = `Error: At least one of the required URL parameters (SKU, Token) was not supplied or was invalid.`;
-            document.getElementById('loading-message').style.display = 'block';
             throw new Error('At least one of the required URL parameters (SKU, Product IDs, Token) was not supplied or was invalid');
         } else {
             // It seems like the required parameters were supplied, try to load the product data from the Storefront API
