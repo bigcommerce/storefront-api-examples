@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <title>Static Site GraphQL Storefront API Example</title>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    </head>
+    <body>
+      <div class="container-fluid">
+        <h1 class="display-4" id="main-title">Bootstrap + Vanilla JS Storefront API Example</h1>
+        <div id="getting-started">
+          <p class="lead">This example shows how a static HTML site can be used to render dynamic product information using BigCommerce's GraphQL Storefront API. Product IDs and the GraphQL authentication details are accepted as URL parameters. View the source of this example <a href="https://github.com/bigcommerce-labs/static-html-storefront-api-example/blob/master/index.html">here.</a></p>
+          <p>Parameters should be populated like this:</p>
+          <code id="page-url"></code><code>?store_hash=<var>&lt;Your Store Hash&gt;</var>&product_ids=<var>&lt;CSV list of product IDs to render&gt;</var>&token=<var>&lt;Your GraphQL Token&gt;</var></code>
+          <p>Be sure to create a token valid for this page's origin: <code id="page-origin"></code><p>
+
+          <p>To just see this page working with data from a sample store, click here.</p>
+
+          <div class="d-flex align-items-center" id="loading-message" style="display: none;">
+            <strong>Loading...</strong>
+            <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Main product listing element, to be filled out with product data from the API -->
+        <div class="card-group" id="product-listing">
+        </div>
+      </div>
+
+        <script>
+        const pageUrl = new URL(window.location);
+        const searchParams = pageUrl.searchParams;
+
+        document.getElementById("page-origin").innerHTML = pageUrl.origin;
+
+        //
+        // Utility functions for rendering
+        //
+        function formatLocalizedPrice (price) {
+            return new Intl.NumberFormat(navigator.language, {style: 'currency', currency: price.currencyCode}).format(price.value);
+        }
+
+        function renderPrice(prices) {
+            return `<span class="card-text text-muted">(${prices.retailPrice ? `<del><span class="font-italic">${formatLocalizedPrice(prices.price)}</span></del>` : ''} ${formatLocalizedPrice(prices.price)})</span>`
+        }
+
+        function renderSrcset(image) {
+            return `${image.img100px} 100w, ${image.img250px} 250w, ${image.img500px} 500w, ${image.img1000px} 1000w, ${image.img1500px} 1500w`
+        }
+
+        function stripHtml(html){
+           var doc = new DOMParser().parseFromString(html, 'text/html');
+           return doc.body.textContent || "";
+        }
+
+        //
+        // Page rendering logic
+        //
+        function renderPage(data) {
+            // Set up the add-to-cart-url format
+            const addToCartURLFormat = `${data.site.settings.url.vanityUrl}/cart.php?action=add&product_id=`
+            // Render the HTML for the product listing by looping over each product in the response
+            document.getElementById('product-listing').innerHTML = `${data.site.products.edges.map(node => renderProduct(node.product, addToCartURLFormat)).reduce((productsHtml, productHtml) => productsHtml += productHtml)}`;
+        }
+
+        //
+        // Rendering logic for each product
+        //
+        function renderProduct(product, addToCartURLFormat) {
+            // Render the product into a bootstrap "card"
+            return `
+                <div class="card" style="min-width: 25%;">
+                ${product.defaultImage ? `<img class="card-img-top" style="min-height: 25%; object-fit: contain;" src="${product.defaultImage.img1000px}" srcset="${renderSrcset(product.defaultImage)}">` : ''
+                 }
+                <div class="card-body">
+                  <h5 class="card-title">${product.name} ${renderPrice(product.prices)}</h5>
+                  <p class="card-text text-truncate">${stripHtml(product.description)}</p>
+                  
+                  <a href="${addToCartURLFormat}${product.entityId}" class="btn btn-primary">Add to cart</a>
+                </div>
+              </div>`
+        }
+
+        function getProductAndSiteInfo(params) {
+            const graphQLUrl = `https://store-${params.store_hash}.mybigcommerce.com/graphql`;
+
+            return fetch(graphQLUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json',
+                       'Authorization': `Bearer ${params.token}`},
+              body: JSON.stringify({ query: `query BuyButton1dot4 {
+                  site {
+                    products${params.product_ids ? `(entityIds:[${params.product_ids}])` : ''} {
+                      edges {
+                        product: node {
+                          ...ProductFields
+                        }
+                      }
+                    }
+                    settings {
+                      storeName
+                      url {
+                        vanityUrl
+                      }
+                    }
+                  }
+                }
+
+                fragment ProductFields on Product {
+                  id
+                  entityId
+                  name
+                  sku
+                  path
+                  description
+                  defaultImage {
+                    img100px: url(width: 100)
+                    img250px: url(width: 250)
+                    img500px: url(width: 500)
+                    img1000px: url(width: 1000)
+                    img1500px: url(width: 1500)
+                    altText
+                  }
+                  prices {
+                    price {
+                      value
+                      currencyCode
+                    }
+                    retailPrice {
+                      value
+                      currencyCode
+                    }
+                  }
+                }` }),
+            }).then(res => res.json()).then(res => res.data);
+        }
+
+        // Set up default params
+        let params = {
+            store_hash: null,
+            product_ids: null,
+            token: null
+        };
+
+        // Fill in supplied URL params
+        Object.keys(params).forEach(function (key) {
+            if (searchParams.get(key)) {
+                params[key] = searchParams.get(key);
+            }
+        });
+
+        // Check for required parameters, throw an error if they're not found
+        if (!(params.store_hash && params.token)) {
+
+            document.getElementById('loading-message').innerHTML = `Error: At least one of the required URL parameters (SKU, Token) was not supplied or was invalid.`;
+            document.getElementById('loading-message').style.display = 'block';
+            throw new Error('At least one of the required URL parameters (SKU, Product IDs, Token) was not supplied or was invalid');
+        } else {
+            document.getElementById('loading-message').style.display = 'block';
+            getProductAndSiteInfo(params).then(data => {
+                renderPage(data);
+                document.getElementById('main-title').innerHTML = `${data.site.settings.storeName}`
+                document.getElementById('getting-started').style.display = 'none';
+                document.getElementById('loading-message').style.display = 'none';
+            }).catch(e => {
+              console.log('Encountered an error:');
+              console.error(e);
+              document.getElementById('loading-message').innerHTML = `Problem loading data from the API: ${e}. Check the browser console for more details.`
+            });
+        }
+        </script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    </body>
+</html>
