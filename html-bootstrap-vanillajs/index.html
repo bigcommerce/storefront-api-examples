@@ -152,7 +152,9 @@
                     }
                   }
                 }` }),
-            }).then(res => res.json()).then(res => res.data);
+            })
+            .then(res => res.json())
+            .then(res => res.data);
         }
 
         // Set up default params
@@ -183,16 +185,22 @@
                 renderPage(data);
 
                 // Set the header to the name of the store
-                document.getElementById('main-title').innerHTML = `${data.site.settings.storeName}`
+                document.getElementById('main-title').textContent = `${data.site.settings.storeName}`
 
                 // Hide the loading message and the getting started context
                 loadingMessageElement.classList.replace('d-flex', 'd-none');
                 document.getElementById('getting-started').classList.add('d-none');
             }).catch(e => {
-              // Some error was encountered, most likely a problem with getting an API response - possibly bad credentials, if this is an HTTP 401
-              console.log('Encountered an error:');
-              console.error(e);
-              document.getElementById('loading-message').innerHTML = `Problem loading data from the API: ${e}. Check the browser console for more details.`
+              // Some error was encountered
+              if (e.name === 'TypeError') {
+                  const errorMessage = 'Error returned from API - check that your store hash and API token are valid, and that your token\'s CORS origin is correctly configured';
+                  loadingMessageElement.innerHTML = `Problem loading data from the API: ${errorMessage}`
+                  throw new Error(errorMessage);
+              } else {
+                loadingMessageElement.innerHTML = `An error occurred: ${e}. Check the browser console for more information.`
+                throw(e);
+              }
+              
             });
         }
         </script>
