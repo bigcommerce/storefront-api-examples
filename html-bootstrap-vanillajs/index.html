@@ -54,7 +54,7 @@
 
         // Create a srcset string for responsive images
         function renderSrcset(image) {
-            return `${image.img100px} 100w, ${image.img250px} 250w, ${image.img500px} 500w, ${image.img1000px} 1000w, ${image.img1500px} 1500w`
+            return `${image.img320px} 320w, ${image.img640px} 640w, ${image.img960px} 960w, ${image.img1280px} 1280w`
         }
 
 
@@ -78,7 +78,7 @@
             // Render the product into a bootstrap "card"
             return `
                 <div class="card" style="min-width: 25%;">
-                ${product.defaultImage ? `<img loading="lazy" class="card-img-top" style="min-height: 25%; object-fit: contain;" src="${product.defaultImage.img1000px}" srcset="${renderSrcset(product.defaultImage)}">` : ''
+                ${product.defaultImage ? `<img loading="lazy" class="card-img-top" style="min-height: 25%; object-fit: contain;" src="${product.defaultImage.img960px}" srcset="${renderSrcset(product.defaultImage)}" alt="${product.defaultImage.altText}">` : ''
                  }
                 <div class="card-body">
                   <h5 class="card-title">${product.name} ${renderPrice(product.prices)}</h5>
@@ -135,11 +135,10 @@
                   path
                   description
                   defaultImage {
-                    img100px: url(width: 100)
-                    img250px: url(width: 250)
-                    img500px: url(width: 500)
-                    img1000px: url(width: 1000)
-                    img1500px: url(width: 1500)
+                    img320px: url(width: 320)
+                    img640px: url(width: 640)
+                    img960px: url(width: 960)
+                    img1280px: url(width: 1280)
                     altText
                   }
                   prices {
