@@ -18,7 +18,7 @@
 
           <p class="lead">To get started, you can simply <strong>click submit</strong> with the sample data below to see the API in action. If you want to see this page with your own store's data, you can <a href="https://developer.bigcommerce.com/api-reference/storefront/storefront-token-api/storefront-api-auth/createtoken" target="_blank">create a token</a> on your store and put it in the form below. Make sure you create a token valid for this page's origin: <code id="page-origin"></code><p>
 
-          <form method="get">
+          <form method="get" id="form">
             <div class="form-group">
               <label>Store Hash</label>
               <input id="store-hash-field" type="text" class="form-control" placeholder="Enter Store Hash" name="store_hash" value="jcngnmnbfy">
@@ -29,14 +29,12 @@
               <input id="api-token-field" type="text" class="form-control" placeholder="Enter Storefront API Token" name="token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJlYXQiOjIwMDAwMDAwMDAsInN1Yl90eXBlIjoyLCJ0b2tlbl90eXBlIjoxLCJjb3JzIjpbImh0dHBzOi8vYmlnY29tbWVyY2UuZ2l0aHViLmlvIl0sImNpZCI6MSwiaWF0IjoxNTY5NzkxNjk1LCJzdWIiOiI3bGp3YzR3d2J6d284NG9rZ2N6cnBzZzN4bGFicDNkIiwic2lkIjo5OTkzMzE3ODQsImlzcyI6IkJDIn0.oZ8kz7thdpDpLDguig-mP3y_ZBudv-kYq-Xufv1g9giX8XuaVj419zpYvRBS4yGP1Vq7jOa3SeaDWgevlNgegg">
               <small class="form-text text-muted">NOTE: This is NOT the same as your OAuth API Access Token.</small>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" id="submit-button">Submit</button>
           </form>
         </div>
 
         <!-- Loading message or spinner -->
-        <div class="d-none align-items-center text-primary" id="loading-message">
-          <strong>Loading...</strong>
-          <div class="spinner-border ml-auto" role="status" aria-hidden="true"></div>
+        <div class="alert alert-danger d-none" role="alert" id="error-message">
         </div>
 
         <!-- Main product listing element, to be filled out with product data from the API -->
@@ -50,6 +48,12 @@
 
         // Inject the current page origin into the getting started text so it will be correct for the current context
         document.getElementById("page-origin").innerHTML = pageUrl.origin;
+
+        const form = document.getElementById('form');
+        const submitButton = document.getElementById('submit-button');
+        form.addEventListener('submit', () => {
+          submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`
+        });
 
         /*
             Utility functions for rendering
@@ -179,8 +183,6 @@
             }
         });
 
-        const loadingMessageElement = document.getElementById('loading-message');
-
         // Check for required parameters, throw an error if they're not found
         if (!(params.store_hash && params.token)) {
             throw new Error('At least one of the required URL parameters (Store Hash, Token) was not supplied or was invalid');
@@ -190,8 +192,6 @@
             document.getElementById('api-token-field').value = params.token;
 
             // It seems like the required parameters were supplied, try to load the product data from the Storefront API
-            // Display the loading message
-            loadingMessageElement.classList.replace('d-none', 'd-flex');
             getProductAndSiteInfo(params).then(data => {
                 // With our data loaded, try to render the product listing
                 renderPage(data);
@@ -199,20 +199,14 @@
                 // Set the header to the name of the store
                 document.getElementById('main-title').textContent = `${data.site.settings.storeName}`
 
-                // Hide the loading message and the getting started context
-                loadingMessageElement.classList.replace('d-flex', 'd-none');
+                // Hide the getting started content
                 document.getElementById('getting-started').classList.add('d-none');
             }).catch(e => {
               // Some error was encountered
-              if (e.name === 'TypeError') {
-                  const errorMessage = 'Error returned from API - check that your store hash and API token are valid, and that your token\'s CORS origin is correctly configured';
-                  loadingMessageElement.innerHTML = `Problem loading data from the API: ${errorMessage}`
-                  throw new Error(errorMessage);
-              } else {
-                loadingMessageElement.innerHTML = `An error occurred: ${e}. Check the browser console for more information.`
-                throw(e);
-              }
-              
+              errorMessageElement = document.getElementById('error-message');
+              errorMessageElement.textContent = `Error returned from API: - check that your store hash and API token are valid, and that your token's CORS origin is correctly configured. Check the browser console for more details of this error.`
+              errorMessageElement.classList.replace('d-none', 'd-flex');
+              throw(e);
             });
         }
         </script>
