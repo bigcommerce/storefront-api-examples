@@ -108,14 +108,9 @@
             // Use the store's canonical URL which should always resolve
             const graphQLUrl = `https://store-${params.store_hash}.mybigcommerce.com/graphql`;
 
-            // Fetch data from the GraphQL Storefront API
-            // If specific product IDs were supplied, fetch them, else just get the first few products
-
-            return fetch(graphQLUrl, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json',
-                       'Authorization': `Bearer ${params.token}`},
-              body: JSON.stringify({ query: `query StaticSiteExample {
+            // Set up GraphQL query
+            const graphQLQuery = `
+                query StaticSiteExample {
                   site {
                     products${params.product_ids ? `(entityIds:[${params.product_ids}])` : ''} {
                       edges {
@@ -157,7 +152,16 @@
                       currencyCode
                     }
                   }
-                }` }),
+                }`
+
+            // Fetch data from the GraphQL Storefront API
+            // If specific product IDs were supplied, fetch them, else just get the first few products
+
+            return fetch(graphQLUrl, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json',
+                       'Authorization': `Bearer ${params.token}`},
+              body: JSON.stringify({ query: graphQLQuery}),
             })
             .then(res => res.json())
             .then(res => res.data);
@@ -187,7 +191,7 @@
 
             // It seems like the required parameters were supplied, try to load the product data from the Storefront API
             getProductAndSiteInfo(params).then(data => {
-                // With our data loaded, try to render the product listing
+                // With our data loaded, render the product listing
                 renderPage(data);
 
                 // Set the header to the name of the store
@@ -197,8 +201,7 @@
                 document.getElementById('getting-started').classList.add('d-none');
             }).catch(e => {
               // Some error was encountered
-              errorMessageElement = document.getElementById('error-message');
-              errorMessageElement.textContent = `Error returned from API: - check that your store hash and API token are valid, and that your token's CORS origin is correctly configured. Check the browser console for more details of this error.`
+              document.getElementById('error-message').textContent = `Error returned from API: - check that your store hash and API token are valid, and that your token's CORS origin is correctly configured. Check the browser console for more details of this error.`;
               errorMessageElement.classList.replace('d-none', 'd-flex');
               throw(e);
             });
