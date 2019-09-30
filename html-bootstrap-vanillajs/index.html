@@ -16,19 +16,13 @@
         <div id="getting-started">
           <p class="lead">This example shows how a static HTML site can be used to render dynamic product information using BigCommerce's GraphQL Storefront API. Product IDs and the GraphQL authentication details are accepted as URL parameters. View the source of this example <a href="https://github.com/bigcommerce/storefront-api-examples/blob/master/html-bootstrap-vanillajs/index.html">here.</a></p>
 
-          <p>Parameters should be populated like this:</p>
-
-          <p><code id="page-url"></code><code>?store_hash=<var>&lt;Your Store Hash&gt;</var>&product_ids=<var>&lt;(Optional) CSV list of product IDs to render&gt;</var>&token=<var>&lt;Your GraphQL Token&gt;</var></code></p>
-
-          <p>Be sure to <a href="https://developer.bigcommerce.com/api-reference/storefront/storefront-token-api/storefront-api-auth/createtoken" target="_blank">create a token</a> valid for this page's origin: <code id="page-origin"></code><p>
-
-          <p id="sample-data-notice">You can use the form below to add your credentials - it's pre-populated with the data from a sample BigCommerce store. If you just want to see the API in action, <strong>click submit!</strong></p>
+          <p class="lead">To get started, you can simply <strong>click submit</strong> with the sample data below to see the API in action. If you want to see this page with your own store's data, you can <a href="https://developer.bigcommerce.com/api-reference/storefront/storefront-token-api/storefront-api-auth/createtoken" target="_blank">create a token</a> on your store and put it in the form below. Make sure you create a token valid for this page's origin: <code id="page-origin"></code><p>
 
           <form method="get">
             <div class="form-group">
               <label>Store Hash</label>
               <input id="store-hash-field" type="text" class="form-control" placeholder="Enter Store Hash" name="store_hash" value="jcngnmnbfy">
-              <small class="form-text text-muted">This is a 4-10 digit alphanumeric code used to set up the public API connection to your store.</small>
+              <small class="form-text text-muted">This is a 4-12 character code used to set up the public API connection to your store.</small>
             </div>
             <div class="form-group">
               <label>Storefront API Token</label>
