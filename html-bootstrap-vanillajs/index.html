@@ -6,6 +6,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
         <title>Static Site GraphQL Storefront API Example</title>
+        <link rel="shortcut icon" href="https://www.bigcommerce.com/assets/images/favicons/favicon.ico">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     </head>
     <body>
@@ -63,7 +64,6 @@
             return `${image.img320px} 320w, ${image.img640px} 640w, ${image.img960px} 960w, ${image.img1280px} 1280w`
         }
 
-
         // Function to strip HTML from product descriptions, leaving just the text
         function stripHtml(html){
            var doc = new DOMParser().parseFromString(html, 'text/html');
@@ -109,6 +109,7 @@
             const graphQLUrl = `https://store-${params.store_hash}.mybigcommerce.com/graphql`;
 
             // Set up GraphQL query
+            // If specific product IDs were supplied, fetch them, else just get the first few products
             const graphQLQuery = `
                 query StaticSiteExample {
                   site {
@@ -155,8 +156,6 @@
                 }`
 
             // Fetch data from the GraphQL Storefront API
-            // If specific product IDs were supplied, fetch them, else just get the first few products
-
             return fetch(graphQLUrl, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json',
