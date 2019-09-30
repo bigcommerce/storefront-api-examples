@@ -49,12 +49,6 @@
         // Inject the current page origin into the getting started text so it will be correct for the current context
         document.getElementById("page-origin").innerHTML = pageUrl.origin;
 
-        const form = document.getElementById('form');
-        const submitButton = document.getElementById('submit-button');
-        form.addEventListener('submit', () => {
-          submitButton.innerHTML = `<span class="spinner-border spinner-border-sm"></span>`
-        });
-
         /*
             Utility functions for rendering
         */
