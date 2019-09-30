@@ -22,7 +22,21 @@
 
           <p>Be sure to <a href="https://developer.bigcommerce.com/api-reference/storefront/storefront-token-api/storefront-api-auth/createtoken" target="_blank">create a token</a> valid for this page's origin: <code id="page-origin"></code><p>
 
-          <p>To just see this page working with data from a sample store, <a href="?store_hash=jcngnmnbfy&token=eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJlYXQiOjIwMDAwMDAwMDAsInN1Yl90eXBlIjoyLCJ0b2tlbl90eXBlIjoxLCJjb3JzIjpbImh0dHBzOi8vYmlnY29tbWVyY2UuZ2l0aHViLmlvIl0sImNpZCI6MSwiaWF0IjoxNTY5NzkxNjk1LCJzdWIiOiI3bGp3YzR3d2J6d284NG9rZ2N6cnBzZzN4bGFicDNkIiwic2lkIjo5OTkzMzE3ODQsImlzcyI6IkJDIn0.oZ8kz7thdpDpLDguig-mP3y_ZBudv-kYq-Xufv1g9giX8XuaVj419zpYvRBS4yGP1Vq7jOa3SeaDWgevlNgegg">click here.</a></p>
+          <p id="sample-data-notice">You can use the form below to add your credentials - it's pre-populated with the data from a sample BigCommerce store. If you just want to see the API in action, <strong>click submit!</strong></p>
+
+          <form method="get">
+            <div class="form-group">
+              <label>Store Hash</label>
+              <input id="store-hash-field" type="text" class="form-control" placeholder="Enter Store Hash" name="store_hash" value="jcngnmnbfy">
+              <small class="form-text text-muted">This is a 4-10 digit alphanumeric code used to set up the public API connection to your store.</small>
+            </div>
+            <div class="form-group">
+              <label>Storefront API Token</label>
+              <input id="api-token-field" type="text" class="form-control" placeholder="Enter Storefront API Token" name="token" value="eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NiJ9.eyJlYXQiOjIwMDAwMDAwMDAsInN1Yl90eXBlIjoyLCJ0b2tlbl90eXBlIjoxLCJjb3JzIjpbImh0dHBzOi8vYmlnY29tbWVyY2UuZ2l0aHViLmlvIl0sImNpZCI6MSwiaWF0IjoxNTY5NzkxNjk1LCJzdWIiOiI3bGp3YzR3d2J6d284NG9rZ2N6cnBzZzN4bGFicDNkIiwic2lkIjo5OTkzMzE3ODQsImlzcyI6IkJDIn0.oZ8kz7thdpDpLDguig-mP3y_ZBudv-kYq-Xufv1g9giX8XuaVj419zpYvRBS4yGP1Vq7jOa3SeaDWgevlNgegg">
+              <small class="form-text text-muted">NOTE: This is NOT the same as your OAuth API Access Token.</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
         </div>
 
         <!-- Loading message or spinner -->
@@ -40,7 +54,7 @@
         const pageUrl = new URL(window.location);
         const searchParams = pageUrl.searchParams;
 
-        // Inject the current page origin into the getting started text
+        // Inject the current page origin into the getting started text so it will be correct for the current context
         document.getElementById("page-origin").innerHTML = pageUrl.origin;
 
         /*
@@ -177,6 +191,10 @@
         if (!(params.store_hash && params.token)) {
             throw new Error('At least one of the required URL parameters (Store Hash, Token) was not supplied or was invalid');
         } else {
+            // Put the supplied parameters into the form so it can easily re-submitted
+            document.getElementById('store-hash-field').value = params.store_hash;
+            document.getElementById('api-token-field').value = params.token;
+
             // It seems like the required parameters were supplied, try to load the product data from the Storefront API
             // Display the loading message
             loadingMessageElement.classList.replace('d-none', 'd-flex');
