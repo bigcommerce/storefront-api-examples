@@ -97,7 +97,7 @@
 
         function renderPrice(prices) {
             // Render the price component from the supplied prices
-            return `<span class="card-text text-muted">(${prices.retailPrice ? `<del><span class="font-italic">${formatLocalizedPrice(prices.price)}</span></del>` : ''} ${formatLocalizedPrice(prices.price)})</span>`
+            return `<span class="card-text text-muted">(${prices.retailPrice ? `<del><span class="font-italic">${formatLocalizedPrice(prices.price)}</span></del> ` : ''}${formatLocalizedPrice(prices.price)})</span>`
         }
 
 
