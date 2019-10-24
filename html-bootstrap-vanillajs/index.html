@@ -22,7 +22,7 @@
           <form method="get" id="form">
             <div class="form-group">
               <label>Store URL</label>
-              <input id="store-url-field" type="text" class="form-control" placeholder="Enter Store URL" name="store_url" value="https://store-jcngnmnbfy.mybigcommerce.com">
+              <input id="store-url-field" type="text" class="form-control" placeholder="Enter Store URL" name="store_url" value="https://buybutton.store">
               <small class="form-text text-muted">Enter the URL of your store's storefront - this will be used to run GraphQL requests against the right store. Use the HTTPS version.</small>
             </div>
             <div class="form-group">
@@ -160,6 +160,8 @@
             // Fetch data from the GraphQL Storefront API
             return fetch(graphQLUrl, {
               method: 'POST',
+              credentials: 'include',
+              mode: 'cors',
               headers: { 'Content-Type': 'application/json',
                        'Authorization': `Bearer ${params.token}`},
               body: JSON.stringify({ query: graphQLQuery}),
