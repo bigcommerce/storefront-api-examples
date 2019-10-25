@@ -14,6 +14,8 @@
       <div class="container-fluid">
         <h1 class="display-4" id="main-title">Bootstrap + Vanilla JS Storefront API Example</h1>
 
+        <p id="customer"></p>
+
         <!-- Getting started content, will be hidden upon success of an API request -->
         <div id="getting-started">
           <p class="lead">This example shows how a static HTML site can be used to render dynamic product information using BigCommerce's GraphQL Storefront API. GraphQL connection details are accepted as URL parameters. View the source of this example <a href="https://github.com/bigcommerce/storefront-api-examples/blob/master/html-bootstrap-vanillajs/index.html">here.</a></p>
@@ -115,6 +117,11 @@
             // If specific product IDs were supplied, fetch them, else just get the first few products
             const graphQLQuery = `
                 query StaticSiteExample {
+                  customer {
+                  	firstName
+                  	lastName
+				    email
+				  }
                   site {
                     products${params.product_ids ? `(entityIds:[${params.product_ids}])` : ''} {
                       edges {
@@ -199,7 +206,11 @@
                 renderPage(data);
 
                 // Set the header to the name of the store
-                document.getElementById('main-title').textContent = `${data.site.settings.storeName}`
+                document.getElementById('main-title').textContent = `${data.site.settings.storeName}`;
+                document.title = `${data.site.settings.storeName}`;
+
+                // Render the customer information if there's a session
+                document.getElementById('customer').innerHTML = `${data.customer ? `Logged in as ${data.customer.firstName} ${data.customer.lastName} (${data.customer.email}) <a href="${params.store_url}/login.php?action=logout" class="badge badge-danger">Sign out</a>` : ''}`;
 
                 // Hide the getting started content
                 document.getElementById('getting-started').classList.add('d-none');
