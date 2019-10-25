@@ -115,6 +115,9 @@
             // If specific product IDs were supplied, fetch them, else just get the first few products
             const graphQLQuery = `
                 query StaticSiteExample {
+                  customer {
+				    email
+				  }
                   site {
                     products${params.product_ids ? `(entityIds:[${params.product_ids}])` : ''} {
                       edges {
@@ -199,7 +202,7 @@
                 renderPage(data);
 
                 // Set the header to the name of the store
-                document.getElementById('main-title').textContent = `${data.site.settings.storeName}`
+                document.getElementById('main-title').textContent = `${data.site.settings.storeName}${data.customer ? ` <span class="badge badge-secondary">${data.customer.email}</span>` : ''}`
 
                 // Hide the getting started content
                 document.getElementById('getting-started').classList.add('d-none');
