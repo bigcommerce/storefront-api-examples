@@ -217,7 +217,7 @@
             }).catch(e => {
               // Some error was encountered
               document.getElementById('error-message').textContent = `Error returned from API: - check that your store url and API token are valid, and that your token's CORS origin is correctly configured. Check the browser console for more details of this error.`;
-              errorMessageElement.classList.replace('d-none', 'd-flex');
+              document.getElementById('error-message').classList.replace('d-none', 'd-flex');
               throw(e);
             });
         }
